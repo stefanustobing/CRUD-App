@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      <v-content>
+        <template>
+          <div>
+            <template>
+              <div>
+                <v-toolbar flat color="white">
+                  <v-dialog v-model="dialog" max-width="500px">
+                    <v-btn slot="activator" color="green" dark class="mb-2">Add new Employee</v-btn>
+                    <v-card>
+                      <v-card-title>
+                        <span class="headline">{{ formTitle }}</span>
+                      </v-card-title>
+
+                      <v-card-text>
+                        <v-container grid-list-md>
+                          <v-layout wrap>
+                            <v-flex xs12 sm6 md4>
+                              <v-text-field v-model="editedItem.name" label="Name (Job Title)"></v-text-field>
+                            </v-flex>
+                            <v-flex xs12 sm6 md4>
+                              <v-text-field v-model="editedItem.age" label="Age"></v-text-field>
+                            </v-flex>
+                            <v-flex xs12 sm6 md4>
+                              <v-text-field v-model="editedItem.nickname" label="Nickname"></v-text-field>
+                            </v-flex>
+                          </v-layout>
+                        </v-container>
+                      </v-card-text>
+
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="blue darken-1" flat @click.native="close">Cancel</v-btn>
+                        <v-btn color="blue darken-1" flat @click.native="save">Save</v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                </v-toolbar>
+                <v-data-table
+                  :headers="headers"
+                  :items="employee"
+                  class="elevation-1"
+                >
+                  <template slot="items" slot-scope="props">
+                    <td>{{ props.item.name }}</td>
+                    <td class="text-xs-left">{{ props.item.age }}</td>
+                    <td class="text-xs-left">{{ props.item.nickname }}</td>
+                    <td class="justify-left layout px-0">
+                      <v-icon
+                        small
+                        class="mr-2"
+                        @click="editItem(props.item)"
+                      >
+                        edit
+                      </v-icon>
+                      <v-icon
+                        small
+                        @click="deleteItem(props.item)"
+                      >
+                        delete
+                      </v-icon>
+                    </td>
+                  </template>
+                  <!--
+                  <template slot="no-data">
+                    <v-btn color="red" @click="initialize">Reset</v-btn>
+                  </template>
+                  -->
+                  <template slot="no-data">
+                    <p style="text-align:center"> No Data to be displayed. Please enter the data </p>
+                  </template>
+                </v-data-table>
+              </div>
+            </template>
+          </div>
+        </template>
+      </v-content>
+    </v-app>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js"></script>
+
+
+  <script>
+   new Vue({
+           el: '#app',
+
+           data: () => ({
+                 dialog: false,
+                 headers: [
+                   {
+                     text: 'Name (Job Title)',
+                     align: 'left',
+                     sortable: true,
+                     value: 'name'
+                   },
+                   { text: 'Age', value: 'age' },
+                   { text: 'Nickname', value: 'nickname' },
+                   { text: 'Actions', value: 'name', sortable: false }
+                 ],
+                 employee: [],
+                 editedIndex: -1,
+                 editedItem: {
+                   name: '',
+                   age: 0,
+                   nickname: '',
+                 },
+                 defaultItem: {
+                   name: '',
+                   age: 0,
+                   nickname: '',
+                 }
+               }),
+
+           computed: {
+                 formTitle () {
+                   return this.editedIndex === -1 ? 'Add New Employee' : 'Edit Employee Data'
+                 }
+               },
+
+               watch: {
+                 dialog (val) {
+                   val || this.close()
+                 }
+               },
+
+               created () {
+                 this.initialize()
+               },
+
+           methods: {
+                 initialize () {
+                   this.employee = [
+                     {
+                       name: 'Giacomo Guilizzoni (Founder & CEO)',
+                       age: 40,
+                       nickname: 'Peldi',
+                     }
+                   ]
+                 },
+
+                 editItem (item) {
+                   this.editedIndex = this.employee.indexOf(item)
+                   this.editedItem = Object.assign({}, item)
+                   this.dialog = true
+                 },
+
+                 deleteItem (item) {
+                   const index = this.employee.indexOf(item)
+                   confirm('Are you sure you want to delete this item?') && this.employee.splice(index, 1)
+                 },
+
+                 close () {
+                   this.dialog = false
+                   setTimeout(() => {
+                     this.editedItem = Object.assign({}, this.defaultItem)
+                     this.editedIndex = -1
+                   }, 300)
+                 },
+
+                 save () {
+                   if (this.editedIndex > -1) {
+                     Object.assign(this.employee[this.editedIndex], this.editedItem)
+                   } else {
+                     this.employee.push(this.editedItem)
+                   }
+                   this.close()
+                 }
+               }
+
+       })
+
+  </script>
+
+
+</body>
+</html>
